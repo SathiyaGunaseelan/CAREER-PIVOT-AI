@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | Career Pivot AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 flex items-center justify-center h-screen">
+    <div class="bg-white p-10 rounded-[3rem] shadow-2xl w-96 border border-slate-100">
+        <h2 class="text-3xl font-black text-blue-600 mb-2 text-center italic">CAREER PIVOT AI</h2>
+        <p class="text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest mb-8">Final Year Project Gateway</p>
+        
+        <input type="text" id="userid" placeholder="Username" class="w-full p-4 mb-4 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
+        <input type="password" id="password" placeholder="Password" class="w-full p-4 mb-6 bg-slate-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
+        
+        <button onclick="handleLogin()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-blue-600 transition shadow-lg">SIGN IN</button>
+        <p id="error" class="text-red-500 text-xs mt-4 hidden text-center font-bold">Invalid Credentials</p>
+    </div>
+
+    <script>
+        function handleLogin() {
+            const u = document.getElementById('userid').value;
+            const p = document.getElementById('password').value;
+
+            const users = {
+                "student1": { pass: "student1", role: "Student", skills: ["Networking", "Testing", "Vulnerability Assessment", "Cybersecurity"] },
+                "student2": { pass: "student2", role: "Student", skills: ["AI Basics", "Machine Learning", "Python", "Data Science"] },
+                "student3": { pass: "student3", role: "Student", skills: ["HTML", "CSS", "JavaScript", "Node.js", "MongoDB"] },
+                "employee1": { pass: "employee1", role: "Employee", skills: ["Networking", "Testing", "VPTA", "Security Operations"], dreamPkg: "45 LPA" },
+                "employee2": { pass: "employee2", role: "Employee", skills: ["AI Engineering", "Python", "Cloud Computing", "MLOps"], dreamPkg: "60 LPA" }
+            };
+
+            if (users[u] && users[u].pass === p) {
+                const DB_KEY = `ULTIMATE_DB_${u}`;
+                const profileData = {
+                    name: u.toUpperCase(),
+                    role: users[u].role,
+                    skills: users[u].skills,
+                    package_goal: users[u].dreamPkg || "15 LPA",
+                    pic: `https://api.dicebear.com/7.x/avataaars/svg?seed=${u}`
+                };
+                localStorage.setItem(DB_KEY, JSON.stringify(profileData));
+                localStorage.setItem('currentUser', u);
+                window.location.href = 'home.html';
+            } else {
+                document.getElementById('error').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

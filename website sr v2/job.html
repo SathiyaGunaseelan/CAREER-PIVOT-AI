@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Market Intelligence | Career Pivot AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Unique Job Grid Layout */
+        .market-grid { 
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 2.5rem;
+        }
+
+        /* Glass-morphism Job Cards */
+        .job-card { 
+            @apply bg-white rounded-[3.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col transition-all duration-500;
+            min-height: 550px;
+        }
+        .job-card:hover { @apply shadow-2xl -translate-y-2 border-blue-100; }
+
+        /* Integrated Bridge Section (Replaces Pop-up) */
+        .bridge-panel { 
+            @apply bg-slate-900 p-8 mt-auto text-white rounded-t-[3.5rem] border-t-4 border-blue-500;
+        }
+        
+        .skill-tag { @apply px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-[9px] font-black uppercase tracking-tight mr-2 mb-2 inline-block; }
+        .gap-tag { @apply px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-[9px] font-black uppercase tracking-tight mr-2 mb-2 inline-block; }
+    </style>
+</head>
+<body class="bg-slate-50 pb-20" onload="initializeMarket()">
+    <nav class="bg-white/80 backdrop-blur-md shadow-sm p-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="font-black text-2xl text-blue-600 tracking-tighter italic">CAREER PIVOT AI</div>
+        <div class="flex space-x-6 font-bold text-[10px] text-slate-500 uppercase tracking-widest">
+            <a href="home.html" class="hover:text-blue-600">Home</a>
+            <a href="profile.html" class="hover:text-blue-600">Profile</a>
+            <a href="roadmap.html" class="hover:text-blue-600">Roadmap</a>
+            <a href="job.html" class="text-blue-600 border-b-2 border-blue-600">Jobs</a>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto mt-12 px-6">
+        <header class="mb-16">
+            <div class="flex items-center gap-4 mb-4">
+                <span class="bg-blue-600 text-white px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">Live Market Intelligence</span>
+            </div>
+            <h1 class="text-5xl font-black text-slate-900 tracking-tighter">Personalized Opportunities</h1>
+            <p id="matchContext" class="text-slate-400 font-bold text-sm mt-2 uppercase tracking-widest">Analyzing Market for: ...</p>
+        </header>
+
+        <div id="marketGrid" class="market-grid">
+            </div>
+    </main>
+
+    <script>
+        const userID = localStorage.getItem('currentUser') || 'student1';
+        const DB_KEY = `ULTIMATE_DB_${userID}`;
+
+        function initializeMarket() {
+            const data = JSON.parse(localStorage.getItem(DB_KEY)) || { skills: ['General'], role: 'Student' };
+            document.getElementById('matchContext').innerText = `Analyzing Market for: ${userID.toUpperCase()} (${data.role})`;
+            
+            const userSkills = data.skills || ['General'];
+            const primary = userSkills[0];
+
+            // UNIQUE JOB DATA (Role-Specific)
+            let marketData = [];
+            if (userID === 'student1' || userID === 'employee1') {
+                marketData = [
+                    { title: "Cybersecurity Analyst", co: "CrowdStrike", pay: "22 LPA", gap: "Cloud Security Architecture", match: 94 },
+                    { title: "Penetration Tester", co: "FireEye", pay: "18 LPA", gap: "Metasploit / Python Scripting", match: 86 },
+                    { title: "SOC Engineer", co: "Microsoft India", pay: "30 LPA", gap: "Azure Sentinel Mastery", match: 72 }
+                ];
+            } else if (userID === 'student2' || userID === 'employee2') {
+                marketData = [
+                    { title: "AI Research Engineer", co: "Google DeepMind", pay: "45 LPA", gap: "LLM Fine-tuning (RAG)", match: 96 },
+                    { title: "MLOps Specialist", co: "NVIDIA", pay: "35 LPA", gap: "Distributed Training Systems", match: 82 },
+                    { role: "Data Scientist", co: "Amazon AI", pay: "28 LPA", gap: "Predictive Analytics (XGBoost)", match: 78 }
+                ];
+            } else {
+                marketData = [
+                    { title: "Full Stack Developer", co: "Meta", pay: "40 LPA", gap: "Next.js Server Components", match: 98 },
+                    { title: "Backend Systems Lead", co: "Netflix", pay: "55 LPA", gap: "Microservices Scalability", match: 85 },
+                    { title: "UX/UI Developer", co: "Adobe", pay: "25 LPA", gap: "Design System Architecture", match: 64 }
+                ];
+            }
+
+            const grid = document.getElementById('marketGrid');
+            grid.innerHTML = marketData.map(j => `
+                <div class="job-card">
+                    <div class="p-10">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="h-14 w-14 bg-slate-50 rounded-2xl flex items-center justify-center text-blue-600 border border-slate-100">
+                                <i class="fas fa-briefcase text-xl"></i>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-[10px] font-black text-green-500 uppercase tracking-widest">${j.match}% Match</p>
+                                <p class="text-xl font-black text-slate-800">${j.pay}</p>
+                            </div>
+                        </div>
+                        <h2 class="text-2xl font-black text-slate-800 leading-tight mb-2 uppercase tracking-tighter">${j.title}</h2>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">${j.co}</p>
+                    </div>
+
+                    <div class="bridge-panel">
+                        <div class="mb-6">
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">AI Skill Bridge Discovery</p>
+                            <div class="mb-4">
+                                <p class="text-[10px] font-bold text-blue-400 mb-2 uppercase">Verified Strengths</p>
+                                <span class="skill-tag">${primary}</span>
+                            </div>
+                            <div>
+                                <p class="text-[10px] font-bold text-red-400 mb-2 uppercase">Required Bridge Gap</p>
+                                <span class="gap-tag">${j.gap}</span>
+                            </div>
+                        </div>
+                        
+                        <button onclick="window.location.href='roadmap.html'" 
+                                class="w-full bg-blue-600 hover:bg-white hover:text-blue-600 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all duration-300 shadow-xl">
+                            Bridge This Gap Now
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Talent Dossier | Career Pivot AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hidden { display: none; }
+        /* ADVANCED ALIGNMENT SYSTEM */
+        .glass-card { @apply bg-white p-8 rounded-[3rem] border border-slate-100 shadow-xl transition-all duration-300; }
+        .input-group { @apply flex flex-col gap-2 mb-4; }
+        label { @apply text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]; }
+        input, select, textarea { @apply w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none text-sm font-medium; }
+        
+        .skill-badge { @apply px-4 py-2 rounded-full bg-blue-50 text-blue-600 text-[10px] font-black uppercase border border-blue-200 flex items-center gap-2; }
+        .quiz-overlay { @apply fixed inset-0 z-[1000] bg-slate-900/95 flex items-center justify-center p-4 backdrop-blur-md; }
+    </style>
+</head>
+<body class="bg-slate-50 pb-20" onload="initProfile()">
+    <nav class="bg-white/80 backdrop-blur-md shadow-sm p-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="font-black text-2xl text-blue-600 tracking-tighter italic">CAREER PIVOT AI</div>
+        <div class="flex space-x-6 font-bold text-[10px] text-slate-500 uppercase tracking-widest">
+            <a href="home.html">Home</a>
+            <a href="profile.html" class="text-blue-600 border-b-2 border-blue-600">Profile</a>
+            <a href="roadmap.html">Roadmap</a>
+            <a href="job.html">Jobs</a>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto mt-8 px-4 flex justify-end gap-3">
+        <button onclick="toggleEdit()" class="bg-slate-900 text-white px-8 py-3 rounded-full text-[10px] font-black hover:bg-blue-600 transition shadow-2xl uppercase tracking-widest">
+            <i class="fas fa-cog mr-2"></i> Mode: Toggle Editor
+        </button>
+        <button onclick="logout()" class="bg-red-500 text-white px-8 py-3 rounded-full text-[10px] font-black hover:bg-red-700 transition shadow-2xl uppercase tracking-widest">
+            <i class="fas fa-power-off mr-2"></i> Logout
+        </button>
+    </div>
+
+    <main class="max-w-6xl mx-auto mt-10 px-4">
+        <div id="viewMode" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div class="lg:col-span-4 space-y-8">
+                <div class="glass-card text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-blue-600"></div>
+                    <img id="v_pic" src="" class="w-32 h-32 rounded-full mx-auto border-4 border-white shadow-2xl mb-4 object-cover">
+                    <h1 id="v_name" class="text-2xl font-black text-slate-800 uppercase">-</h1>
+                    <p id="v_role_badge" class="text-blue-600 font-bold text-xs uppercase tracking-widest mb-4">-</p>
+                    <div id="v_socials" class="flex justify-center gap-4 text-xl text-slate-300"></div>
+                </div>
+
+                <div class="bg-slate-900 p-8 rounded-[3rem] text-white shadow-2xl">
+                    <h3 class="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-6">Verified Skill Matrix</h3>
+                    <div id="v_skills" class="flex flex-wrap gap-2"></div>
+                    <button onclick="startVerification()" class="w-full mt-8 bg-blue-600 py-3 rounded-2xl text-[10px] font-black uppercase hover:bg-white hover:text-blue-600 transition">
+                        Verify New Skill
+                    </button>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8 space-y-8">
+                <div class="glass-card">
+                    <h3 class="font-black text-slate-800 mb-4 text-xs uppercase border-b pb-2">Professional Summary</h3>
+                    <p id="v_summary" class="text-slate-500 text-sm leading-relaxed italic">-</p>
+                </div>
+
+                <div id="v_corp" class="hidden bg-blue-600 p-10 rounded-[3.5rem] text-white shadow-xl">
+                    <h3 class="font-black mb-4 text-xs border-b border-blue-400 pb-2 uppercase">Corporate Footprint</h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <p><b>Organization:</b> <span id="v_company_v">-</span></p>
+                        <p><b>Position:</b> <span id="v_job_v">-</span></p>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h3 class="font-black text-slate-800 mb-4 text-xs uppercase border-b pb-2">Project Portfolio</h3>
+                    <h4 id="v_proj_title" class="font-black text-sm text-blue-600 uppercase mb-2">-</h4>
+                    <p id="v_proj_desc" class="text-xs text-slate-500 leading-relaxed">-</p>
+                </div>
+
+                <div class="glass-card">
+                    <h3 class="font-black text-slate-800 mb-6 text-xs uppercase border-b pb-2">Academic Scorecard</h3>
+                    <div class="grid grid-cols-2 gap-8 mb-6">
+                        <div class="bg-slate-50 p-4 rounded-2xl">
+                            <label>Institution</label>
+                            <p id="v_college_v" class="font-bold text-slate-700 text-sm">-</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-2xl text-right">
+                            <label>Current CGPA</label>
+                            <p id="v_cgpa_v" class="font-black text-blue-600 text-2xl">-</p>
+                        </div>
+                    </div>
+                    <div id="v_sems" class="grid grid-cols-4 md:grid-cols-8 gap-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="editMode" class="hidden space-y-8">
+            <div class="bg-slate-900 p-12 rounded-[4rem] text-white shadow-2xl flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-black italic uppercase tracking-tighter">Dossier Editor</h1>
+                    <p class="text-blue-400 text-[10px] font-bold uppercase mt-2 tracking-widest">Syncing Profile Data...</p>
+                </div>
+                <i class="fas fa-shield-alt text-6xl opacity-20"></i>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="glass-card">
+                        <h2 class="text-xs font-black text-slate-800 uppercase border-b pb-3 mb-6">Identity & Goals</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="input-group"><label>Full Name</label><input type="text" id="i_name"></div>
+                            <div class="input-group"><label>Status</label>
+                                <select id="i_role" onchange="toggleFormFields()"><option value="Student">Student</option><option value="Employee">Employee</option></select>
+                            </div>
+                        </div>
+                        <div class="input-group"><label>Professional Summary</label><textarea id="i_summary" rows="3"></textarea></div>
+                    </div>
+
+                    <div id="edit_corp" class="hidden glass-card bg-blue-50/50">
+                        <h2 class="text-xs font-black text-blue-700 uppercase mb-4">Corporate Data</h2>
+                        <div class="grid grid-cols-3 gap-6">
+                            <div class="input-group"><label>Company</label><input type="text" id="i_company"></div>
+                            <div class="input-group"><label>Designation</label><input type="text" id="i_job_title"></div>
+                            <div class="input-group"><label>Exp (Yrs)</label><input type="number" id="i_exp"></div>
+                        </div>
+                    </div>
+
+                    <div id="edit_student" class="hidden glass-card bg-green-50/50">
+                        <h2 class="text-xs font-black text-green-700 uppercase mb-4">Career Targets</h2>
+                        <div class="grid grid-cols-3 gap-6">
+                            <div class="input-group"><label>Dream Skill</label><input type="text" id="i_target_skill"></div>
+                            <div class="input-group"><label>Dream Co</label><input type="text" id="i_dream_co"></div>
+                            <div class="input-group"><label>Target LPA</label><input type="text" id="i_package_goal"></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card">
+                        <h2 class="text-xs font-black text-slate-800 uppercase border-b pb-3 mb-6">Technical Portfolio</h2>
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="input-group"><label>Project Title</label><input type="text" id="i_proj_title"></div>
+                            <div class="input-group"><label>Image URL</label><input type="text" id="i_pic"></div>
+                        </div>
+                        <div class="input-group"><label>Project Description</label><textarea id="i_proj_desc" rows="2"></textarea></div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="glass-card h-full">
+                        <h2 class="text-xs font-black text-slate-800 uppercase border-b pb-3 mb-6">Academic History</h2>
+                        <div class="input-group"><label>College</label><input type="text" id="i_college"></div>
+                        <div class="input-group"><label>Overall CGPA</label><input type="text" id="i_cgpa"></div>
+                        
+                        <label class="mt-4 mb-2">Semester GPAs (8 Semesters)</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="text" id="s1" class="text-center" placeholder="S1"> <input type="text" id="s2" class="text-center" placeholder="S2">
+                            <input type="text" id="s3" class="text-center" placeholder="S3"> <input type="text" id="s4" class="text-center" placeholder="S4">
+                            <input type="text" id="s5" class="text-center" placeholder="S5"> <input type="text" id="s6" class="text-center" placeholder="S6">
+                            <input type="text" id="s7" class="text-center" placeholder="S7"> <input type="text" id="s8" class="text-center" placeholder="S8">
+                        </div>
+                        
+                        <div class="mt-8 pt-8 border-t border-slate-100">
+                            <label>Social Connections</label>
+                            <input type="text" id="i_linkedin" placeholder="LinkedIn URL" class="mb-2">
+                            <input type="text" id="i_github" placeholder="GitHub URL">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="saveProfile()" class="w-full bg-blue-600 text-white py-6 rounded-[2.5rem] font-black text-lg shadow-2xl hover:bg-blue-700 transition uppercase tracking-widest">Update Master Database</button>
+        </div>
+    </main>
+
+    <div id="quizModal" class="quiz-overlay hidden">
+        <div class="bg-white max-w-lg w-full rounded-[3.5rem] p-10 shadow-2xl relative">
+            <h2 id="quizSkillTitle" class="text-2xl font-black text-slate-800 mb-2 uppercase">Skill Assessment</h2>
+            <p class="text-xs font-bold text-blue-600 uppercase tracking-widest mb-8">Score 8/10 to verify</p>
+            
+            <div id="quizContent" class="space-y-6">
+                </div>
+            
+            <div class="mt-10 flex justify-between items-center">
+                <p class="text-xs font-black text-slate-400">Question <span id="qNum">1</span> of 10</p>
+                <button onclick="nextQuestion()" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black text-[10px] uppercase">Next Question</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const userID = localStorage.getItem('currentUser') || 'student1';
+        const DB_KEY = `ULTIMATE_DB_${userID}`;
+
+        let currentQuestion = 0;
+        let score = 0;
+        let activeSkill = "";
+        let questions = [];
+
+        function logout() { localStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
+
+        function initProfile() { if(!userID) window.location.href = 'index.html'; loadView(); }
+
+        function toggleEdit() {
+            document.getElementById('viewMode').classList.toggle('hidden');
+            document.getElementById('editMode').classList.toggle('hidden');
+            if(!document.getElementById('editMode').classList.contains('hidden')) loadInputs();
+        }
+
+        function toggleFormFields() {
+            const role = document.getElementById('i_role').value;
+            document.getElementById('edit_corp').classList.toggle('hidden', role !== 'Employee');
+            document.getElementById('edit_student').classList.toggle('hidden', role !== 'Student');
+        }
+
+        // VERIFICATION ENGINE
+        function startVerification() {
+            const skill = prompt("Enter skill to verify (Python, Cybersecurity, Java, AI):");
+            if(!skill) return;
+            activeSkill = skill;
+            currentQuestion = 0;
+            score = 0;
+            
+            // 10 Question Mock Logic
+            questions = Array(10).fill({ q: `Advanced ${activeSkill} Question?`, a: "True" });
+            
+            document.getElementById('quizSkillTitle').innerText = `${activeSkill} Assessment`;
+            document.getElementById('quizModal').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            document.getElementById('qNum').innerText = currentQuestion + 1;
+            document.getElementById('quizContent').innerHTML = `
+                <p class="font-bold text-slate-700 mb-4">${questions[currentQuestion].q}</p>
+                <div class="space-y-3">
+                    <button onclick="answer(true)" class="w-full p-4 border-2 rounded-2xl text-left font-bold hover:border-blue-500 transition">True</button>
+                    <button onclick="answer(false)" class="w-full p-4 border-2 rounded-2xl text-left font-bold hover:border-blue-500 transition">False</button>
+                </div>
+            `;
+        }
+
+        function answer(val) {
+            if(val === true) score++;
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if(currentQuestion < 10) {
+                showQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            document.getElementById('quizModal').classList.add('hidden');
+            if(score >= 8) {
+                alert(`Congratulations! You scored ${score}/10. ${activeSkill} is now VERIFIED.`);
+                const data = JSON.parse(localStorage.getItem(DB_KEY));
+                if(!data.verifiedSkills) data.verifiedSkills = [];
+                if(!data.verifiedSkills.includes(activeSkill)) data.verifiedSkills.push(activeSkill);
+                localStorage.setItem(DB_KEY, JSON.stringify(data));
+                loadView();
+            } else {
+                alert(`You scored ${score}/10. Assessment failed. Try again later.`);
+            }
+        }
+
+        function loadInputs() {
+            const data = JSON.parse(localStorage.getItem(DB_KEY)) || {};
+            const fields = ['name', 'role', 'summary', 'pic', 'linkedin', 'github', 'company', 'job_title', 'exp', 'college', 'cgpa', 'target_skill', 'dream_co', 'package_goal', 'proj_title', 'proj_desc'];
+            fields.forEach(f => {
+                const el = document.getElementById('i_' + f);
+                if(el) el.value = data[f] || '';
+            });
+            for(let i=1; i<=8; i++) document.getElementById('s'+i).value = (data.sems && data.sems[i-1]) || '';
+            toggleFormFields();
+        }
+
+        function loadView() {
+            const data = JSON.parse(localStorage.getItem(DB_KEY)) || {};
+            document.getElementById('v_name').innerText = data.name || userID.toUpperCase();
+            document.getElementById('v_pic').src = data.pic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${userID}`;
+            document.getElementById('v_role_badge').innerText = data.role || 'Unset';
+            document.getElementById('v_summary').innerText = data.summary || 'Aspiring talent currently bridging skills.';
+            
+            const vSkills = data.verifiedSkills || [];
+            document.getElementById('v_skills').innerHTML = vSkills.map(s => `
+                <div class="skill-badge"><i class="fas fa-check-circle"></i> ${s}</div>
+            `).join('') || '<p class="text-[10px] italic text-slate-500">No verified skills yet.</p>';
+
+            document.getElementById('v_proj_title').innerText = data.proj_title || 'Untitled Project';
+            document.getElementById('v_proj_desc').innerText = data.proj_desc || 'No description available.';
+            document.getElementById('v_college_v').innerText = data.college || 'Institution Unset';
+            document.getElementById('v_cgpa_v').innerText = data.cgpa || '0.0';
+
+            const corpView = document.getElementById('v_corp');
+            if(data.role === 'Employee') {
+                corpView.classList.remove('hidden');
+                document.getElementById('v_company_v').innerText = data.company || '-';
+                document.getElementById('v_job_v').innerText = data.job_title || '-';
+            } else { corpView.classList.add('hidden'); }
+
+            const semData = data.sems || ['','','','','','','',''];
+            document.getElementById('v_sems').innerHTML = semData.map((s, i) => `<div class="bg-slate-50 border rounded-2xl p-2 text-center"><p class="text-[7px] text-slate-400 font-bold uppercase">S${i+1}</p><p class="text-[10px] font-black">${s || '-'}</p></div>`).join('');
+            
+            let sHtml = '';
+            if(data.linkedin) sHtml += `<a href="${data.linkedin}" target="_blank" class="hover:text-blue-600"><i class="fab fa-linkedin"></i></a>`;
+            if(data.github) sHtml += `<a href="${data.github}" target="_blank" class="hover:text-black"><i class="fab fa-github"></i></a>`;
+            document.getElementById('v_socials').innerHTML = sHtml || '<span class="text-xs italic">No social links</span>';
+        }
+
+        function saveProfile() {
+            const data = JSON.parse(localStorage.getItem(DB_KEY)) || {};
+            const fields = ['name', 'role', 'summary', 'pic', 'linkedin', 'github', 'company', 'job_title', 'exp', 'college', 'cgpa', 'target_skill', 'dream_co', 'package_goal', 'proj_title', 'proj_desc'];
+            fields.forEach(f => {
+                const el = document.getElementById('i_' + f);
+                if(el) data[f] = el.value;
+            });
+            data.sems = [];
+            for(let i=1; i<=8; i++) data.sems.push(document.getElementById('s'+i).value);
+            localStorage.setItem(DB_KEY, JSON.stringify(data));
+            loadView(); toggleEdit();
+        }
+    </script>
+</body>
+</html>
